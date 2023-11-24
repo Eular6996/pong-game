@@ -103,54 +103,64 @@ public class ball : MonoBehaviour
     }
 
 
-    //When Triggered with collider
-    private void OnTriggerEnter2D(Collider2D collision)
+//When Triggered with collider
+private void OnTriggerEnter2D(Collider2D collision)
+{
+    //collide with obstacle
+    if (collision.gameObject.CompareTag("Up") || collision.gameObject.CompareTag("Down"))
     {
-        //collide with obstacle
-        if(collision.gameObject.CompareTag("Up") || collision.gameObject.CompareTag("Down"))
-        {
-            m_velocityDirection.y *= -1f;
-            SetVelocity();
-
-            PlaySountEffect("HitByObject");
-        }
-
-        //hit by player
-        else if (collision.gameObject.CompareTag("Player1") || collision.gameObject.CompareTag("Player2"))
-        {
-            m_velocityDirection.x *= -1f;
-
-            //increase Speed as player hit the ball
-            m_velocityMagnitude += m_velocityIncrementCount;
-            SetVelocity();
-
-            PlaySountEffect("HitByPlayer");
-        }
-
-        //miss the ball by player 
-        else if(collision.gameObject.CompareTag("Right"))
-        {
-            scoreManager.UpdatePlayerScore("Player2"); //update score
-            StartCoroutine(StartGame(m_pauseTime));
-
-            PlaySountEffect("BallMissed");
-        }
-        else if(collision.gameObject.CompareTag("Left"))
-        {
-            scoreManager.UpdatePlayerScore("Player1"); //update score
-            StartCoroutine(StartGame(m_pauseTime));
-
-            PlaySountEffect("BallMissed");
-        }
+        HitByObject();
     }
 
-
-    void PlaySountEffect(string hitter)
+    //hit by player
+    else if (collision.gameObject.CompareTag("Player1") || collision.gameObject.CompareTag("Player2"))
     {
-        //In gameOver No Hitting SOundEffect will Play
-        if(!scoreManager.IsGameOver)
-        {
-            AudioManager.instance.PlaySFX(hitter);
-        }
+        HitByPlayer();
     }
+
+    //miss the ball by player 
+    else if (collision.gameObject.CompareTag("Right"))
+    {
+        MissedBall("Player2");
+    }
+    else if (collision.gameObject.CompareTag("Left"))
+    {
+        MissedBall("Player1");
+    }
+}
+
+public void HitByObject()
+{
+    m_velocityDirection.y *= -1f;
+    SetVelocity();
+
+    PlaySountEffect("HitByObject");
+}
+
+public void HitByPlayer()
+{
+    m_velocityDirection.x *= -1f;
+
+    //increase Speed as player hit the ball
+    m_velocityMagnitude += m_velocityIncrementCount;
+    SetVelocity();
+
+    PlaySountEffect("HitByPlayer");
+}
+
+public void MissedBall(string WinPlayer)
+{
+    scoreManager.UpdatePlayerScore(WinPlayer); //update score
+    StartCoroutine(StartGame(m_pauseTime));
+    PlaySountEffect("BallMissed");
+}
+
+void PlaySountEffect(string hitter)
+{
+    //In gameOver No Hitting SOundEffect will Play
+    if (!scoreManager.IsGameOver)
+    {
+        AudioManager.instance.PlaySFX(hitter);
+    }
+}
 }
